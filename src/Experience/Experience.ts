@@ -70,7 +70,7 @@ class Experience {
         // this.world = new World()
         this.renderer = new Renderer()
 
-        this.client = new Client('ws://metaverse.letna.dev')
+        this.client = new Client('ws://metaverse.letna.dev/api')
 
         this.client.on('joined', () => {
             this.setState('running')
