@@ -39,7 +39,9 @@ class Resources extends EventEmitter {
 
         this.setLoaders()
         this.startLoading()
-            .then(() => this.trigger('ready'))
+            .then(() => {
+                this.trigger('ready')
+            })
             .catch((err) => this.trigger('error', err))
     }
 

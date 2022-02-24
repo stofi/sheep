@@ -1107,6 +1107,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/tailwindcss@^3.0.9":
+  version "3.0.9"
+  resolved "https://registry.npmjs.org/@types/tailwindcss/-/tailwindcss-3.0.9.tgz#82dffdc096818c1989e1b75da8ea6b4f4cdf9cc4"
+  integrity sha512-uZjNKNjlA6cr6py/GWsDjevJb/Bl0fmaMNUdIpNMW3TJGJzxN9O6uFWx97LiSK7ithWNrrDSytq1FdvHpgSvWg==
+
 "@types/three@^0.137.0":
   version "0.137.0"
   resolved "https://registry.npmjs.org/@types/three/-/three-0.137.0.tgz#6047e0658262b4de7c464a40288f9071ddd9a6d5"

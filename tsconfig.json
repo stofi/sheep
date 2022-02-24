@@ -18,6 +18,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "baseUrl": "./src",
+    "allowJs": true,
     
   },
   "include": ["./src"],

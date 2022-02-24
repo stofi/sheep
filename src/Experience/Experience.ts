@@ -14,6 +14,17 @@ import sources from './sources'
 
 let instance: Experience
 
+type ExperienceState =
+    | 'joining'
+    | 'running'
+    | 'leaving'
+    | 'initializing'
+    | 'error'
+
+type ExperienceStateTransitions = {
+    [key in ExperienceState]: ExperienceState[]
+}
+
 class Experience {
     canvas!: HTMLCanvasElement
     sizes!: Sizes
@@ -21,9 +32,23 @@ class Experience {
     camera!: Camera
     scene!: THREE.Scene
     renderer!: Renderer
-    world!: World
+    world?: World
     resources!: Resources
     gui!: gui.GUI
+    currentCamera!: THREE.Camera
+    state!: ExperienceState
+    transitions: ExperienceStateTransitions = {
+        initializing: ['joining', 'error'],
+        joining: ['running', 'leaving', 'error'],
+        running: ['leaving', 'error'],
+        leaving: ['initializing', 'error'],
+        error: ['initializing'],
+    }
+    ui!: {
+        element: HTMLDivElement
+        form: HTMLFormElement
+        join: HTMLButtonElement
+    }
 
     constructor(canvas?: HTMLCanvasElement) {
         if (instance) return instance
@@ -32,14 +57,16 @@ class Experience {
         if (!canvas) throw new Error('Experience requires a canvas element')
 
         this.canvas = canvas
+        this.gui = new gui.GUI()
         this.sizes = new Sizes()
         this.time = new Time()
         this.scene = new THREE.Scene()
         this.resources = new Resources(sources)
         this.camera = new Camera()
-        this.world = new World()
+        this.currentCamera = this.camera.instance
+        // this.world = new World()
         this.renderer = new Renderer()
-        this.gui = new gui.GUI()
+
         this.gui.close()
         // if not #debug destroy the gui
         if (
@@ -57,17 +84,81 @@ class Experience {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             ;(globalThis as any).experience = this
         }
+
+        this.setState('initializing')
+    }
+
+    private setState(state: ExperienceState) {
+        if (state === 'initializing' && this.state === undefined) {
+            this.state = state
+        } else {
+            const oldState = this.state
+            const newState = state
+            if (this.transitions[oldState].includes(newState)) {
+                this.state = newState
+            }
+        }
+        switch (this.state) {
+            case 'initializing':
+                this.initialize()
+                break
+            case 'joining':
+                this.join()
+                break
+            case 'running':
+                this.run()
+                break
+            case 'leaving':
+                this.leave()
+                break
+            case 'error':
+                this.error()
+                break
+        }
+    }
+    initialize() {
+        if (!this.ui) {
+            this.ui = {
+                element: document.getElementById('ui') as HTMLDivElement,
+                form: document.getElementById('form') as HTMLFormElement,
+                join: document.getElementById('join') as HTMLButtonElement,
+            }
+            this.ui.join.addEventListener('click', (e) => {
+                e.preventDefault()
+                this.setState('joining')
+            })
+        }
+        this.ui.join.disabled = false
+        this.ui.element.classList.remove('hidden')
+        this.ui.element.classList.add('grid')
+        throw new Error('Method not implemented.')
+    }
+    join() {
+        this.ui.join.disabled = true
+        throw new Error('Method not implemented.')
+    }
+    run() {
+        this.ui.element.classList.add('hidden')
+        throw new Error('Method not implemented.')
+    }
+    leave() {
+        throw new Error('Method not implemented.')
+    }
+    error() {
+        this.ui.element.classList.add('hidden')
+        throw new Error('Method not implemented.')
     }
 
     private resize() {
         this.camera.resize()
         this.renderer.resize()
-        this.world.resize()
+        this.world && this.world.resize()
     }
 
     private update() {
+        this.camera.update()
         this.renderer.update()
-        this.world.update()
+        this.world && this.world.update()
     }
 }
 
