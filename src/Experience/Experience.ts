@@ -12,6 +12,8 @@ import World from './World/World'
 
 import sources from './sources'
 
+import Client from './Client'
+
 let instance: Experience
 
 type ExperienceState =
@@ -49,6 +51,7 @@ class Experience {
         form: HTMLFormElement
         join: HTMLButtonElement
     }
+    client!: Client
 
     constructor(canvas?: HTMLCanvasElement) {
         if (instance) return instance
@@ -66,6 +69,12 @@ class Experience {
         this.currentCamera = this.camera.instance
         // this.world = new World()
         this.renderer = new Renderer()
+
+        this.client = new Client('ws://metaverse.letna.dev')
+
+        this.client.on('joined', () => {
+            this.setState('running')
+        })
 
         this.gui.close()
         // if not #debug destroy the gui
@@ -131,17 +140,24 @@ class Experience {
         this.ui.join.disabled = false
         this.ui.element.classList.remove('hidden')
         this.ui.element.classList.add('grid')
-        throw new Error('Method not implemented.')
     }
     join() {
         this.ui.join.disabled = true
-        throw new Error('Method not implemented.')
+        // get data from form as json
+        const object: any = {}
+        new FormData(this.ui.form).forEach(
+            (value, key) => (object[key] = value)
+        )
+        this.client.join(object)
     }
     run() {
         this.ui.element.classList.add('hidden')
-        throw new Error('Method not implemented.')
+        this.world = new World()
     }
     leave() {
+        this.world && this.world.destroy()
+        this.world = undefined
+        this.setState('initializing')
         throw new Error('Method not implemented.')
     }
     error() {
