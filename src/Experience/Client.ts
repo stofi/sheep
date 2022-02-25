@@ -64,6 +64,7 @@ class Client extends EventEmitter {
         this.onPlayerMoved()
         this.onPlayerJoined()
         this.onPlayerLeft()
+        this.onRecieveChat()
     }
 
     join({ roomId, roomPassword, playerName, color }: JoinData) {
@@ -81,6 +82,11 @@ class Client extends EventEmitter {
         this.socket.emit('leave')
     }
 
+    chat(message: string) {
+        logger('chat', message)
+        this.socket.emit('chat', { message })
+    }
+
     onJoined() {
         this.socket.on('joined', (data: { room: Room; player: Player }) => {
             logger('joined', data.room, data.player)
@@ -95,23 +101,25 @@ class Client extends EventEmitter {
         this.socket.on('playerJoined', (data: { player: Player }) => {
             logger('onPlayerJoined', data)
             this.room!.players.push(data.player)
-            this.trigger('update')
+            this.trigger('playerJoined', [{ player: data.player }])
         })
     }
 
     onPlayerLeft() {
-        this.socket.on('playerLeft', (data: { playerId: string }) => {
+        this.socket.on('playerLeft', (data: { player: Player }) => {
             logger('onPlayerLeft', data)
             this.room!.players = this.room!.players.filter(
-                (player) => player.id !== data.playerId
+                (player) => player.id !== data.player.id
             )
-            this.trigger('update')
+            this.trigger('playerLeft', [{ id: data.player.id }])
         })
     }
 
     onPlayerMoved() {
         this.socket.on('playerMoved', (data: { player: Player }) => {
             logger('onPlayerMoved', data)
+
+            if (!this.room?.players) return
 
             const player = this.room!.players.find(
                 (player) => player.id === data.player.id
@@ -121,10 +129,33 @@ class Client extends EventEmitter {
                 player.z = data.player.z
                 player.thetaY = data.player.thetaY
 
-                this.trigger('playerMoved', player)
+                this.trigger('playerMoved', [
+                    {
+                        id: player.id,
+                        x: player.x,
+                        z: player.z,
+                        thetaY: player.thetaY,
+                    },
+                ])
             }
-            this.trigger('update')
         })
+    }
+
+    onRecieveChat() {
+        this.socket.on(
+            'playerChat',
+            (data: { player: Player; message: string }) => {
+                logger('onRecieveChat', data)
+                console.log(data)
+
+                this.trigger('playerChat', [
+                    {
+                        id: data.player.id,
+                        message: data.message,
+                    },
+                ])
+            }
+        )
     }
 }
 

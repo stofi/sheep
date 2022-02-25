@@ -10,12 +10,14 @@
 
         <title>threejs-boilerplate</title>
     </head>
-    <body class="relative">
+    <body class="">
         <canvas class="webgl fixed inset-0 outline-none"></canvas>
         <div id="ui" class="fixed inset-0 z-10 place-items-center hidden">
             <!--  Form with username, color, room name and password -->
             <form class="bg-slate-200 p-4 rounded-md shadow-sm" id="form">
-                <div class="grid grid-cols-1 gap-4  place-items-center md:place-items-stretch place-content-center">
+                <div
+                    class="grid grid-cols-1 gap-4 place-items-center md:place-items-stretch place-content-center"
+                >
                     <label class="" for="username">Username</label>
                     <!-- /[a-zA-Z0-9]/ -->
                     <input
@@ -36,8 +38,6 @@
                         type="color"
                         class="border border-gray-400 p-2 w-full h-12"
                         placeholder="Color"
-                        
-
                     />
 
                     <label class="" for="room">Room</label>
@@ -60,11 +60,44 @@
                         class="border border-gray-400 p-2"
                         placeholder="Password"
                     />
-                    <button id="join" type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full group h-12">
+                    <button
+                        id="join"
+                        type="submit"
+                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-full group h-12"
+                    >
                         <span class="group-disabled:hidden">Join</span>
-                        <span class="group-disabled:inline-block hidden animate-spin">⚙️</span>
+                        <span
+                            class="group-disabled:inline-block hidden animate-spin"
+                            >⚙️</span
+                        >
                     </button>
                 </div>
+            </form>
+        </div>
+        <div id="chat-ui" class="fixed inset-0 z-10 place-items-center hidden">
+            <form
+                class="bg-slate-200 p-4 rounded-md shadow-sm flex items-stretch opacity-90 mt-auto mb-2"
+                id="chat-form"
+            >
+                <input
+                    name="chat-message"
+                    id="chat-message"
+                    type="text"
+                    class="border border-gray-400 p-2"
+                    placeholder="message"
+                    required
+                    maxlength="64"
+                /><button
+                    id="chat-send"
+                    type="submit"
+                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-r-xl group"
+                >
+                    <span class="group-disabled:hidden">send</span>
+                    <span
+                        class="group-disabled:inline-block hidden animate-spin"
+                        >⚙️</span
+                    >
+                </button>
             </form>
         </div>
     </body>

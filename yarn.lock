@@ -4725,6 +4725,11 @@ text-table@^0.2.0:
   resolved "https://registry.npmjs.org/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=
 
+three-spritetext@^1.6.5:
+  version "1.6.5"
+  resolved "https://registry.npmjs.org/three-spritetext/-/three-spritetext-1.6.5.tgz#67d6f5ab985507a0687eccc7b27c112fa268b8f8"
+  integrity sha512-ttA1ce3tJz6OFojLGY3VjtqF9johetq50TztYcPFWqdEUrwPmej5XXcHahVyQGd88FHRDzJmW2rW3zSifUsdYA==
+
 three@^0.137.5:
   version "0.137.5"
   resolved "https://registry.npmjs.org/three/-/three-0.137.5.tgz#a1e34bedd0412f2d8797112973dfadac78022ce6"

@@ -16,9 +16,6 @@ class Sizes extends EventEmitter {
     }
 
     private setSizes() {
-        if (!window.location.hash.match('lowres')) {
-            this.maxPixelRatio = 2
-        }
         this.width = window.innerWidth
         this.height = window.innerHeight
         this.pixelRatio = Math.min(window.devicePixelRatio, this.maxPixelRatio)

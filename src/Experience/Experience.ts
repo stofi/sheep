@@ -37,7 +37,6 @@ class Experience {
     world?: World
     resources!: Resources
     gui!: gui.GUI
-    currentCamera!: THREE.Camera
     state!: ExperienceState
     transitions: ExperienceStateTransitions = {
         initializing: ['joining', 'error'],
@@ -66,11 +65,11 @@ class Experience {
         this.scene = new THREE.Scene()
         this.resources = new Resources(sources)
         this.camera = new Camera()
-        this.currentCamera = this.camera.instance
-        // this.world = new World()
         this.renderer = new Renderer()
+        // this.world = new World()
 
-        this.client = new Client('https://metaverse.letna.dev/')
+        this.client = new Client('ws://localhost:4004')
+        // this.client = new Client('https://metaverse.letna.dev/')
 
         this.client.on('joined', () => {
             this.setState('running')
@@ -172,8 +171,8 @@ class Experience {
     }
 
     private update() {
-        this.camera.update()
         this.renderer.update()
+        this.camera.update()
         this.world && this.world.update()
     }
 }

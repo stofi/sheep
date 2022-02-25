@@ -38,7 +38,7 @@ class Renderer {
         this.canvas = this.experience.canvas
         this.sizes = this.experience.sizes
         this.scene = this.experience.scene
-        this.camera = this.experience.currentCamera
+        this.camera = this.experience.camera.instance
         this.time = this.experience.time
         this.gui = this.experience.gui?.addFolder('Renderer')
         this.resources = this.experience.resources
@@ -96,7 +96,7 @@ class Renderer {
         }
 
         this.postProcess = new ShaderPass(postProcessShader)
-        this.postProcess.enabled = true
+        this.postProcess.enabled = false
         this.effects.addPass(this.postProcess)
 
         const gamma = new ShaderPass(GammaCorrectionShader)
@@ -122,8 +122,6 @@ class Renderer {
     }
 
     resize() {
-        this.effects &&
-            this.effects.setSize(this.sizes.width, this.sizes.height)
         this.instance &&
             this.instance.setSize(this.sizes.width, this.sizes.height)
 
@@ -134,10 +132,8 @@ class Renderer {
             )
     }
     update() {
-        if (this.camera.uuid !== this.experience.currentCamera.uuid) {
-            this.camera = this.experience.currentCamera
-            this.renderPass && (this.renderPass.camera = this.camera)
-        }
+        // console.log(this.effects)
+
         this.effects && this.effects.render()
     }
 }

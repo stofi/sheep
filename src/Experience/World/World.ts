@@ -1,7 +1,9 @@
+import * as THREE from 'three'
+import SpriteText from 'three-spritetext'
+
 import type Resources from '../Utils/Resources'
 import type Client from '../Client'
 
-import * as THREE from 'three'
 import Experience from '../Experience'
 import Environment from './Environment'
 import Player from './Player'
@@ -19,6 +21,7 @@ class World {
     player!: Player
     peers: any = {}
     client: Client
+    peerGeometry = new THREE.BoxBufferGeometry(1, 1, 1)
 
     constructor() {
         this.experience = new Experience()
@@ -31,7 +34,11 @@ class World {
         } else {
             this.resources.on('ready', this.onReady.bind(this))
         }
-        this.client.on('update', this.updatePeers.bind(this))
+        // this.client.on('update', this.updatePeers.bind(this))
+        this.client.on('playerJoined', this.onPlayerJoined.bind(this))
+        this.client.on('playerLeft', this.onPlayerLeft.bind(this))
+        this.client.on('playerMoved', this.onPlayerMoved.bind(this))
+        this.client.on('playerChat', this.onPlayerChat.bind(this))
     }
 
     private onReady() {
@@ -69,25 +76,48 @@ class World {
 
     setPeers() {
         const room = this.client.room!
+        if (!room.players) return
+        room.players.forEach(this.createPeer.bind(this))
+    }
+
+    createPeer(player: {
+        id: string
+        color: string
+        x: number
+        z: number
+        thetaY: number
+        name: string
+    }) {
+        if (this.peers[player.id]) return
+
         const myself = this.client.player!
-        this.peers = room.players.reduce((acc: any, player) => {
-            if (player.id !== myself.id) {
-                const object = new THREE.Mesh(
-                    new THREE.BoxBufferGeometry(1, 1, 1),
-                    new THREE.MeshBasicMaterial({
-                        color: new THREE.Color(player.color),
-                    })
-                )
-                object.position.set(player.x, 0.5, player.z)
-                object.rotation.y = player.thetaY
-                acc[player.id] = {
-                    player,
-                    object,
-                }
-                this.scene.add(object)
-            }
-            return acc
-        }, {})
+        if (player.id === myself.id) return
+
+        const object = new THREE.Mesh(
+            this.peerGeometry,
+            new THREE.MeshBasicMaterial({
+                color: new THREE.Color(player.color),
+            })
+        )
+        object.position.set(player.x, 0.5, player.z)
+        object.rotation.y = player.thetaY
+
+        const chatLabel = new SpriteText('')
+        object.add(chatLabel)
+
+        const nameLabel = new SpriteText(player.name ?? '')
+        nameLabel.position.y = 1.5
+        nameLabel.scale.multiplyScalar(0.05)
+        nameLabel.material.color.set(new THREE.Color(player.color ?? 'red'))
+        object.add(nameLabel)
+
+        this.peers[player.id] = {
+            player,
+            object,
+            chat: chatLabel,
+        }
+
+        this.scene.add(object)
     }
 
     updatePeers() {
@@ -126,6 +156,54 @@ class World {
             peer.object.position.set(peer.player.x, 0.5, peer.player.z)
             peer.object.rotation.y = peer.player.thetaY
         })
+    }
+
+    onPlayerChat(data: { id: string; message: string }) {
+        console.log(data)
+        if (!data) return
+        const id = data.id
+        const message = data.message
+        if (this.peers[id]) {
+            this.peers[id].chat.text = message
+            this.peers[id].chat.position.y = 1
+            this.peers[id].chat.scale.multiplyScalar(0.02)
+            this.peers[id].chat.material.color.set('black')
+        }
+    }
+    onPlayerMoved(data: any) {
+        if (!data) return
+
+        const id = data.id
+        const x = data.x
+        const z = data.z
+        const thetaY = data.thetaY
+        if (this.peers[id]) {
+            this.peers[id].object.position.set(x, 0.5, z)
+            this.peers[id].object.rotation.y = thetaY
+        }
+    }
+    onPlayerLeft(data: { id: string }) {
+        if (!data) return
+        const id = data.id
+        if (this.peers[id]) {
+            this.scene.remove(this.peers[id].object)
+            delete this.peers[id]
+        }
+    }
+    onPlayerJoined(data: {
+        player: {
+            id: string
+            color: string
+            x: number
+            z: number
+            thetaY: number
+            name: string
+        }
+    }) {
+        if (!data) return
+        const player = data.player
+
+        this.createPeer(player)
     }
 
     resize() {

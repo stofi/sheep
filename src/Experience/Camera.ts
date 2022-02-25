@@ -38,10 +38,6 @@ class Camera {
         this.controls = new OrbitControls(this.instance, this.canvas)
         this.controls.enableDamping = true
         this.controls.dampingFactor = 0.25
-        // min agle
-        this.controls.minPolarAngle = 0
-        // max angle
-        this.controls.maxPolarAngle = Math.PI / 2 - 0.1
     }
     update() {
         this.controls.update()
@@ -49,6 +45,7 @@ class Camera {
 
     resize() {
         this.instance.aspect = this.sizes.width / this.sizes.height
+
         this.instance.updateProjectionMatrix()
     }
 }
