@@ -68,8 +68,8 @@ class Experience {
         this.renderer = new Renderer()
         // this.world = new World()
 
-        this.client = new Client('ws://localhost:4004')
-        // this.client = new Client('https://metaverse.letna.dev/')
+        // this.client = new Client('ws://localhost:4004')
+        this.client = new Client('https://metaverse.letna.dev/')
 
         this.client.on('joined', () => {
             //add room name to url query string
