@@ -58,7 +58,7 @@ class Client extends EventEmitter {
             this.connected = false
         })
         this.socket.on('error', (error: Error) => {
-            console.error(error)
+            this.trigger('error', [{ error }])
         })
         this.onJoined()
         this.onPlayerMoved()

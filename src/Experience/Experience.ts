@@ -68,11 +68,23 @@ class Experience {
         this.renderer = new Renderer()
         // this.world = new World()
 
-        // this.client = new Client('ws://localhost:4004')
-        this.client = new Client('https://metaverse.letna.dev/')
+        this.client = new Client('ws://localhost:4004')
+        // this.client = new Client('https://metaverse.letna.dev/')
 
         this.client.on('joined', () => {
+            //add room name to url query string
+            const id = this.client.room?.id
+            if (id) {
+                const url = new URL(window.location.href)
+                url.searchParams.set('room', id)
+                window.history.replaceState({}, '', url.toString())
+            }
             this.setState('running')
+        })
+        this.client.on('error', ({ error }: { error: string }) => {
+            console.log(error)
+
+            this.setState('error', error)
         })
 
         this.gui.close()
@@ -96,7 +108,7 @@ class Experience {
         this.setState('initializing')
     }
 
-    private setState(state: ExperienceState) {
+    private setState(state: ExperienceState, message?: string) {
         if (state === 'initializing' && this.state === undefined) {
             this.state = state
         } else {
@@ -120,7 +132,7 @@ class Experience {
                 this.leave()
                 break
             case 'error':
-                this.error()
+                this.error(message)
                 break
         }
     }
@@ -136,6 +148,13 @@ class Experience {
                 this.setState('joining')
             })
         }
+        // get room name from url query string
+        const url = new URL(window.location.href)
+        const room = url.searchParams.get('room')
+        // if room name in form is empty and room name in url is not empty
+        if (!this.ui.form.roomId.value && room) {
+            this.ui.form.roomId.value = room
+        }
         this.ui.join.disabled = false
         this.ui.element.classList.remove('hidden')
         this.ui.element.classList.add('grid')
@@ -147,6 +166,19 @@ class Experience {
         new FormData(this.ui.form).forEach(
             (value, key) => (object[key] = value)
         )
+        // if no playerName
+        if (!object.playerName) {
+            // this.setState('initializing')
+            this.setState('error', 'Please enter a player name')
+            return
+        }
+
+        // if no roomName
+        if (!object.roomId) {
+            // this.setState('initializing')
+            this.setState('error', 'Please enter a room name')
+            return
+        }
         this.client.join(object)
     }
     run() {
@@ -159,9 +191,12 @@ class Experience {
         this.setState('initializing')
         throw new Error('Method not implemented.')
     }
-    error() {
-        this.ui.element.classList.add('hidden')
-        throw new Error('Method not implemented.')
+    error(message = 'An error occured') {
+        alert(message)
+        this.ui.join.disabled = false
+        this.ui.element.classList.remove('hidden')
+        this.ui.element.classList.add('grid')
+        this.setState('initializing')
     }
 
     private resize() {
